@@ -1,0 +1,13 @@
+import { DataTypes } from "sequelize"
+
+const typesSchema = (sequelize) => {
+  sequelize.define('Types', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
+  })
+}
+
+
+export default typesSchema

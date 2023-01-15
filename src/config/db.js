@@ -1,0 +1,25 @@
+import { Sequelize } from 'sequelize'
+import dotenv from 'dotenv'
+import recipeSchema from '../models/Recipes.js'
+import typesSchema from '../models/Types.js'
+dotenv.config()
+
+const connection = new Sequelize(
+  `postgres://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/food`,
+  {
+    logging: false, // set to console.log to see the raw SQL queries
+    native: false // lets Sequelize know we can use pg-native for ~30% more speed
+  }
+)
+recipeSchema(connection)
+typesSchema(connection)
+
+
+const {Recipes, Types } = connection.models
+
+Recipes.belongsToMany(Types, {through: 'recipe_type'})
+Types.belongsToMany(Recipes, {through: 'recipe_type'})
+
+
+export { connection , Types , Recipes}
+
