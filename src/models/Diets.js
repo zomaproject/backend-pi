@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize"
 
 const typesSchema = (sequelize) => {
-  sequelize.define('Types', {
+  sequelize.define('Diets', {
     name: {
       type: DataTypes.STRING,
       allowNull: false

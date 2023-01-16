@@ -89,7 +89,7 @@ __IMPORTANTE__: No se permitirá utilizar librerías externas para aplicar estil
 - [ ] Express
 - [ ] Sequelize - Postgres
 
-#### Frontend
+### Frontend
 
 Se debe desarrollar una aplicación de React/Redux que contenga las siguientes pantallas/rutas.
 
@@ -99,7 +99,7 @@ __Pagina inicial__: deben armar una landing page con
 
 __Ruta principal__: debe contener
 - [ ] Input de búsqueda para encontrar recetas por nombre
-- [ ] Área donde se verá el listado de recetas. Deberá mostrar su:
+- [x] Área donde se verá el listado de recetas. Deberá mostrar su:
   - Imagen
   - Nombre
   - Tipo de dieta (vegetariano, vegano, apto celíaco, etc)
@@ -152,17 +152,17 @@ Se debe desarrollar un servidor en Node/Express con las siguientes rutas:
 
 __IMPORTANTE__: No está permitido utilizar los filtrados, ordenamientos y paginados brindados por la API externa, todas estas funcionalidades tienen que implementarlas ustedes.
 
-- [ ] __GET /recipes?name="..."__:
+- [x] __GET /recipes?name="..."__:
   - Obtener un listado de las recetas que contengan la palabra ingresada como query parameter
   - Si no existe ninguna receta mostrar un mensaje adecuado
-- [ ] __GET /recipes/{idReceta}__:
+- [x] __GET /recipes/{idReceta}__:
   - Obtener el detalle de una receta en particular
   - Debe traer solo los datos pedidos en la ruta de detalle de receta
   - Incluir los tipos de dieta asociados
-- [ ] __GET /types__:
+- [x] ] __GET /types__:
   - Obtener todos los tipos de dieta posibles
   - En una primera instancia, cuando no exista ninguno, deberán precargar la base de datos con los tipos de datos indicados por spoonacular [acá](https://spoonacular.com/food-api/docs#Diets)
-- [ ] __POST /recipe__:
+- [x] __POST /recipe__:
   - Recibe los datos recolectados desde el formulario controlado de la ruta de creación de recetas por body
   - Crea una receta en la base de datos
 

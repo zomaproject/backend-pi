@@ -1,7 +1,7 @@
 import { Sequelize } from 'sequelize'
 import dotenv from 'dotenv'
 import recipeSchema from '../models/Recipes.js'
-import typesSchema from '../models/Types.js'
+import typesSchema from '../models/Diets.js'
 dotenv.config()
 
 const connection = new Sequelize(
@@ -15,11 +15,11 @@ recipeSchema(connection)
 typesSchema(connection)
 
 
-const {Recipes, Types } = connection.models
+const {Recipes, Diets } = connection.models
 
-Recipes.belongsToMany(Types, {through: 'recipe_type'})
-Types.belongsToMany(Recipes, {through: 'recipe_type'})
+Recipes.belongsToMany(Diets, {through: 'recipe_diets'})
+Diets.belongsToMany(Recipes, {through: 'recipe_diets'})
 
 
-export { connection , Types , Recipes}
+export { connection , Recipes , Diets}
 

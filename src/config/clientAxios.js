@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const clientAxios =   axios.create({
-  baseURL: 'https://api.spoonacular.com' 
+  baseURL: process.env.API_URL 
 })
 
 

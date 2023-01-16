@@ -1,4 +1,5 @@
-import { Recipes, Types } from '../config/db.js'
+import { Op } from 'sequelize'
+import { Recipes, Diets } from '../config/db.js'
 import { getApiRecipes, getApiRecipeById } from '../helpers/getRecipes.js'
 import { mapRecipe } from '../helpers/mapRecipe.js'
 
@@ -8,41 +9,42 @@ export const getRecipes = async (req, res) => {
 
   try {
     const apiData = await getApiRecipes()
+    const recipesApi = mapRecipe(apiData)
+
     const recipesInDB = await Recipes.findAll({
       include: {
-        model: Types
+        model: Diets
       }
     })
-    if (search) {
-      const recipes = mapRecipe(apiData)
-      const searchReicipes = recipes?.filter((recipe) =>
-        recipe.title.toLowerCase().includes(search.toLowerCase())
-      )
-      if(!searchReicipes.length) {
-      return  res.status(403).send({ msg: `Recipe  ${search} not found` })
-      }
-      return  res.send(searchReicipes) 
+
+    if (!search) {
+      return res.send([...recipesApi, ...recipesInDB])
     }
 
-    const recipes = apiData.map((recipe) => {
-      const { id, title, image, healthScore, diets } = recipe
-      return {
-        id,
-        title,
-        image,
-        healthScore,
-        Types: diets.map(diet => ({name: diet})) 
+    const searchDB = await Recipes.findAll({
+      where: { title: { [Op.iRegexp]: `${search}` } },
+      include: {
+        model: Diets,
+        attributes: ['name'],
+        through: {
+          attributes: []
+        }
       }
     })
-    res.send([...recipes, ...recipesInDB])
-  } catch (error) {
+    const searchApi = recipesApi.filter((recipe) => 
+      recipe.title.toLowerCase().includes(search.toLowerCase())
+    )
+    res.send([...searchApi, ...searchDB])
+  } catch(error) {
     res.status(500).send({ msg: error.message })
   }
+
 }
 
 // create recipe
 export const createRecipe = async (req, res) => {
   const titleBody = req.body.title.trim()
+  console.log([`${titleBody}`])
   try {
     //search if recipe already exists
     const recipeInDB = await Recipes.findOne({
@@ -50,26 +52,25 @@ export const createRecipe = async (req, res) => {
         title: titleBody
       }
     })
-
     if (recipeInDB?.toJSON().id) {
       const error = new Error('Recipe already exists')
       return res.status(403).send({ msg: error.message })
     }
-
+    req.body.title = titleBody
     //create recipe
     const recipe = await Recipes.create(req.body)
     // search types
-    const typesData = await Types.findAll({
+    const dietsData = await Diets.findAll({
       where: {
-        name: req.body.types
+        name: req.body.diets
       }
     })
     // add types to recipe
-    await recipe.addTypes(typesData)
+    await recipe.addDiets(dietsData)
 
     res.send(recipe)
   } catch (error) {
-    res.status(500).send({ msg: error.message })
+    res.status(500).send({ msg: 'Ha ocurrido un erro intenta mas tarde' })
   }
 }
 
@@ -79,20 +80,12 @@ export const getRecipeById = async (req, res) => {
   //search in api
   const { id } = req.params
   try {
-    const recipe = await getApiRecipeById(id)
-    if (!recipe) {
+    const recipeApi = await getApiRecipeById(id)
+    if (!recipeApi) {
       return res.status(404).send({ msg: 'Recipe not found' })
     }
-
-    const { title, image, healthScore, diets, instructions } = recipe
-    res.send({
-      id,
-      title,
-      image,
-      healthScore,
-      diets,
-      instructions
-    })
+    const recipeFormat = mapRecipe([recipeApi],"healthScore","summary", "instructions")
+    res.send(recipeFormat[0])
   } catch (error) {
     res.status(500).send({ msg: error.message })
   }
