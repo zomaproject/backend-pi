@@ -18,7 +18,7 @@ export const getRecipes = async (req, res) => {
     })
 
     if (!search) {
-      return res.send([...recipesApi, ...recipesInDB])
+      return res.send([...recipesInDB,...recipesApi ])
     }
 
     const searchDB = await Recipes.findAll({
@@ -31,20 +31,19 @@ export const getRecipes = async (req, res) => {
         }
       }
     })
-    const searchApi = recipesApi.filter((recipe) => 
+    const searchApi = recipesApi.filter((recipe) =>
       recipe.title.toLowerCase().includes(search.toLowerCase())
     )
     res.send([...searchApi, ...searchDB])
-  } catch(error) {
+  } catch (error) {
     res.status(500).send({ msg: error.message })
   }
-
 }
 
 // create recipe
 export const createRecipe = async (req, res) => {
   const titleBody = req.body.title.trim()
-  console.log([`${titleBody}`])
+  // console.log([`${titleBody}`])
   try {
     //search if recipe already exists
     const recipeInDB = await Recipes.findOne({
@@ -79,14 +78,45 @@ export const createRecipe = async (req, res) => {
 export const getRecipeById = async (req, res) => {
   //search in api
   const { id } = req.params
+  const regexExp =
+    /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi
+
+  if (regexExp.test(id)) {
+    // search in db
+    try {
+      const recipe = await Recipes.findOne({
+        where: { id },
+        include: {
+          model: Diets,
+          attributes: ['name'],
+          through: {
+            attributes: []
+          }
+        }
+      })
+      if (!recipe) {
+        return res.status(404).send({ msg: 'Recipe not found' })
+      }
+      return res.send(recipe)
+    } catch (error) {
+      return res.status(500).send({ msg: error.message })
+    }
+  }
   try {
     const recipeApi = await getApiRecipeById(id)
     if (!recipeApi) {
       return res.status(404).send({ msg: 'Recipe not found' })
     }
-    const recipeFormat = mapRecipe([recipeApi],"healthScore","summary", "instructions")
-    res.send(recipeFormat[0])
+    const recipeFormat = mapRecipe(
+      [recipeApi],
+      'healthScore',
+      'summary',
+      'instructions'
+    )
+    return res.send(recipeFormat[0])
   } catch (error) {
-    res.status(500).send({ msg: error.message })
+    return res.status(500).send({ msg: error.message })
   }
+
+  //search in db
 }

@@ -4,7 +4,7 @@ const typesSchema = (sequelize) => {
   sequelize.define('Diets', {
     name: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     }
   })
 }

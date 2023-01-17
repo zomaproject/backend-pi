@@ -6,7 +6,7 @@ export const mapRecipe = (recipeApi, ...args) => {
       title,
       image,
       score: winePairing?.productMatches[0].score,
-      Types: diets.map((diet) => ({ name: diet }))
+      Diets: diets.map((diet) => ({ name: diet }))
     }
 
     for (let i = 0; i < args.length; i++) {
