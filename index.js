@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 4000
 connection.sync({ alter: true }).then(() => {
   console.log('Database synced')
   app.listen(PORT, () => {
-    // createDiets().then(() => console.log('Types created'))
+    createDiets().then(() => console.log('Types created'))
     console.log(`Server running on port ${PORT}`)
   })
 })

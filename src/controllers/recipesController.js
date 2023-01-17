@@ -64,6 +64,7 @@ export const createRecipe = async (req, res) => {
         name: req.body.diets
       }
     })
+    console.log(dietsData)
     // add types to recipe
     await recipe.addDiets(dietsData)
 

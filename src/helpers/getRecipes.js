@@ -8,7 +8,7 @@ export const getApiRecipes = async () => {
 
 export const getApiRecipeById = async (id) => {
   const { data } = await axios(
-    `https://api.spoonacular.com/recipes/${id}/information?apiKey=ba81b4d07ca94195ba7811151d17dcdf`
+    `https://api.spoonacular.com/recipes/${id}/information?apiKey=c6c1447a36d84432a200c5441bb51d47`
   )
   return data
 }
