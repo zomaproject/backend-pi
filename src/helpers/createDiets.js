@@ -9,6 +9,6 @@ export const createDiets = async () => {
   const diets = allDiets.flat()
   const uniqueDiets = [...new Set(diets)]
   uniqueDiets.forEach( async elemento => {
-     await Diets.create({name: elemento})
+     await Diets.findOrCreate({where: {name: elemento}})
   });
 }

@@ -18,7 +18,7 @@ export const getRecipes = async (req, res) => {
     })
 
     if (!search) {
-      return res.send([...recipesInDB,...recipesApi ])
+      return res.send([...recipesInDB, ...recipesApi])
     }
 
     const searchDB = await Recipes.findAll({
@@ -34,7 +34,11 @@ export const getRecipes = async (req, res) => {
     const searchApi = recipesApi.filter((recipe) =>
       recipe.title.toLowerCase().includes(search.toLowerCase())
     )
-    res.send([...searchApi, ...searchDB])
+    if ([...searchApi, ...searchDB].length === 0) {
+      const error = new Error('Recipe not found')
+      res.status(403).send(error)
+    }
+    return res.send([...searchApi, ...searchDB])
   } catch (error) {
     res.status(500).send({ msg: error.message })
   }
