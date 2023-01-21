@@ -7,7 +7,7 @@ import recipes from './src/routes/recipesRouter.js'
 import morgan from 'morgan'
 import { connection } from './src/config/db.js'
 import diets from './src/routes/dietsRouter.js'
-import { createDiets } from './src/helpers/createDiets.js'
+import  createDiets  from './src/helpers/createDiets.js'
 const app = express()
 
 const whiteList = [process.env.FRONTEND_URL]

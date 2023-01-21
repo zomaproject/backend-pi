@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize"
-
+import { Sequelize } from "sequelize"
 const recipeSchema =  (sequelize) => {
   sequelize.define('Recipes', {
     id: {
@@ -11,22 +11,19 @@ const recipeSchema =  (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    resume: {
+    summary: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    heathScore: {
+    healthScore: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    ingredients: {
-      type: DataTypes.STRING,
+    analyzedInstructions:{
+    type:  Sequelize.ARRAY(Sequelize.TEXT) ,
       allowNull: false
     },
-    instructions: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
+   
     image: {
       type: DataTypes.STRING,
       allowNull: false
