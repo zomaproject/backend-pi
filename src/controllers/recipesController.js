@@ -9,7 +9,7 @@ export const getRecipes = async (req, res) => {
 
 	try {
 		const apiData = await getApiRecipes();
-		const recipesApi = mapRecipe(apiData, "summary", "analyzedInstructions");
+		const recipesApi = mapRecipe(apiData);
 
 		const recipesInDB = await Recipes.findAll({
 			include: {

@@ -1,11 +1,10 @@
 export const mapRecipe = (recipeApi, ...args) => {
   const recipes = recipeApi.map((r) => {
-    const { id, title, image, diets, winePairing } = r
+    const { id, title,image,diets } = r
     const recipe = {
       id,
       title,
       image,
-      score: winePairing?.productMatches[0].score,
       Diets: diets.map((diet) => ({ name: diet }))
     }
     for (let i = 0; i < args.length; i++) {
