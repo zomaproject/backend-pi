@@ -9,7 +9,7 @@ export const getRecipes = async (req, res) => {
 
 	try {
 		const apiData = await getApiRecipes();
-		const recipesApi = mapRecipe(apiData);
+		const recipesApi = mapRecipe(apiData, 'healthScore');
 
 		const recipesInDB = await Recipes.findAll({
 			include: {
@@ -64,7 +64,7 @@ export const createRecipe = async (req, res) => {
 		// search types
 		const dietsData = await Diets.findAll({
 			where: {
-				name: req.body.diets,
+				name: req.body.Diets,
 			},
 		});
 		await recipe.addDiets(dietsData);
