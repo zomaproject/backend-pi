@@ -23,12 +23,10 @@ recipeSchema(connection)
 typesSchema(connection)
 
   
-
 const {Recipes, Diets } = connection.models
 
 Recipes.belongsToMany(Diets, {through: 'recipe_diets'})
 Diets.belongsToMany(Recipes, {through: 'recipe_diets'})
-
 
 export { connection , Recipes , Diets}
 
