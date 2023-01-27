@@ -10,7 +10,7 @@ export const mapRecipe = (recipeApi, ...args) => {
     for (let i = 0; i < args.length; i++) {
       if (r.hasOwnProperty(args[i])) {
         if (args[i] === 'analyzedInstructions') {
-          recipe[args[i]] = r.analyzedInstructions[0]?.steps.map(
+          recipe.instructions = r.analyzedInstructions[0]?.steps.map(
             (step) => step.step
           )
           continue
@@ -25,6 +25,7 @@ export const mapRecipe = (recipeApi, ...args) => {
     }
     return recipe
   })
-
   return recipes
 }
+
+// => ...args [arg, arg2, arg3]

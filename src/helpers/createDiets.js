@@ -1,4 +1,4 @@
-import clientAxios from "../config/clientAxios.js"
+// import clientAxios from "../config/clientAxios.js"
 import axios from "axios"
 import { Diets } from "../config/db.js"
 

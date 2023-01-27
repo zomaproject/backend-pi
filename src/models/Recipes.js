@@ -12,14 +12,14 @@ const recipeSchema =  (sequelize) => {
       allowNull: false
     },
     summary: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false
     },
     healthScore: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    analyzedInstructions:{
+   instructions:{
     type:  Sequelize.ARRAY(Sequelize.TEXT) ,
       allowNull: false
     },
