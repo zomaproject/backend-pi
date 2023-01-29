@@ -1,15 +1,24 @@
 import { Op } from "sequelize";
 import { Recipes, Diets } from "../config/db.js";
 import { getApiRecipes, getApiRecipeById } from "../helpers/getRecipes.js";
-import { mapRecipe } from "../helpers/mapRecipe.js";
+import cloudinary from "cloudinary";
+import multer from "multer";
+import fs from "fs";
+import os from "os";
+cloudinary.v2.config({
+	cloud_name: process.env.CLOUDINARY_NAME,
+	api_key: process.env.CLOUDINARY_KEY,
+	api_secret: process.env.CLOUDINARY_SECRET,
+});
 
+import { mapRecipe } from "../helpers/mapRecipe.js";
 // get recipes with info needed for home
 export const getRecipes = async (req, res) => {
 	const { search } = req.query;
 
 	try {
 		const apiData = await getApiRecipes();
-		const recipesApi = mapRecipe(apiData, 'healthScore');
+		const recipesApi = mapRecipe(apiData, "healthScore");
 
 		const recipesInDB = await Recipes.findAll({
 			include: {
@@ -45,23 +54,37 @@ export const getRecipes = async (req, res) => {
 
 // create recipe
 export const createRecipe = async (req, res) => {
-	const titleBody = req.body.title.trim();
-	// console.log([`${titleBody}`])
 	try {
-		//search if recipe already exists
+
+		const buffer = req.file.buffer;
+		const tempFilePath = `${os.tmpdir()}/${req.file.originalname}`;
+		fs.writeFileSync(tempFilePath, buffer);
+		const result = await cloudinary.v2.uploader.upload(tempFilePath);
+		fs.unlinkSync(tempFilePath);
+
+		const { title } = req.body;
+
 		const recipeInDB = await Recipes.findOne({
 			where: {
-				title: titleBody,
+				title: title,
 			},
 		});
+
 		if (recipeInDB?.toJSON().id) {
 			const error = new Error("Recipe already exists");
 			return res.status(403).send({ msg: error.message });
 		}
-		req.body.title = titleBody;
-		//create recipe
-		const recipe = await Recipes.create(req.body);
-		// search types
+		const {  instructions, summary, healthScore } = req.body;
+		const image = result.secure_url;
+		const dataRecipe = {
+			image,
+			title,
+			instructions,
+			summary,
+			image,
+			healthScore,
+		};
+		const recipe = await Recipes.create(dataRecipe);
 		const dietsData = await Diets.findAll({
 			where: {
 				name: req.body.Diets,
@@ -126,5 +149,31 @@ export const getRecipeById = async (req, res) => {
 		return res.status(500).send({ msg: error.message });
 	}
 
-	//search in db
+	//delete
+};
+
+export const deleRecipe = async (req, res) => {
+	const id = req.params.id;
+	try {
+		await Recipes.destroy({ where: { id } });
+		res.send({ msg: "Receta eliminada correctamente" });
+	} catch (e) {
+		res.send({ msg: "Ha ocurrido un error , intente mas tarde" });
+	}
+};
+
+export const editRecipe = async (req, res) => {
+	const id = req.params.id;
+	const { title, summary, instructions, image, healthScore } = req.body;
+	const data = { title, summary, instructions, image, healthScore };
+	try {
+		const recipeInDB = await Model.findByPk(id);
+		if (!recipeInDB) {
+			return res.status(404).send("Receta no encontrada");
+		}
+		await recipeInDB.update(data);
+		res.send("Registro actualizado con éxito");
+	} catch (err) {
+		res.send({ msg: `Eror al actualizar intenta mas tarde ${err.message}` });
+	}
 };

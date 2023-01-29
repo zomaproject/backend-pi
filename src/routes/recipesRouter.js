@@ -1,16 +1,23 @@
-import express from 'express'
-import { createRecipe, getRecipeById } from '../controllers/recipesController.js'
-import {getRecipes} from '../controllers/recipesController.js'
+import express from "express";
 
+import cloudinary from "cloudinary";
+import multer from "multer";
+import {
+	createRecipe,
+	deleRecipe,
+	editRecipe,
+	getRecipeById,
+} from "../controllers/recipesController.js";
+import { getRecipes } from "../controllers/recipesController.js";
 
-const router = express.Router()
+const router = express.Router();
 
-// router.get('/',recipes) 
+// router.get('/',recipes)
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+router.route("/").get(getRecipes).post(upload.single('image'),createRecipe);
 
-router.route('/')
-  .get(getRecipes)
-  .post(createRecipe)
+router.route("/:id").get(getRecipeById).delete(deleRecipe).put(editRecipe);
 
-router.get('/:id', getRecipeById)
-export default router
+export default router;
