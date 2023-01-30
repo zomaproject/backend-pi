@@ -2,7 +2,6 @@ import { Op } from "sequelize";
 import { Recipes, Diets } from "../config/db.js";
 import { getApiRecipes, getApiRecipeById } from "../helpers/getRecipes.js";
 import cloudinary from "cloudinary";
-import multer from "multer";
 import fs from "fs";
 import os from "os";
 cloudinary.v2.config({
@@ -89,7 +88,7 @@ export const createRecipe = async (req, res) => {
 			image = req.body.image;
 			dataRecipe.image = image;
 		}
-
+		console.log(dataRecipe)
 		const recipe = await Recipes.create(dataRecipe);
 		const dietsData = await Diets.findAll({
 			where: {
@@ -104,7 +103,7 @@ export const createRecipe = async (req, res) => {
 				},
 			],
 		});
-		res.send(updateRecipe);
+		res.send('hola');
 	} catch (error) {
 		res.status(500).send({ msg: error.message });
 	}
@@ -186,9 +185,9 @@ export const editRecipe = async (req, res) => {
 			title: titleBody,
 		},
 	}) 
-	console.log(recipeInDB)
-	if (recipeInDB?.toJSON().id !== id) {
-		const error = new Error("Recipe already exists");
+	// console.log(recipeInDB.toJSON())
+	if (recipeInDB?.toJSON().id && id !== recipeInDB.toJSON().id ) {
+		const error = new Error("Recipe already exists intenta con otro titulo");
 		return res.status(403).send({ msg: error.message });
 	}
 
@@ -211,8 +210,16 @@ export const editRecipe = async (req, res) => {
 		if (!recipeInDB) {
 			return res.status(404).send("Receta no encontrada");
 		}
+		console.log(dataRecipe)
 		await recipeInDB.update(dataRecipe);
-		res.send("Registro actualizado con éxito");
+		const recipe = await Recipes.findByPk(id, {
+			include: [
+				{
+					model: Diets,
+				},
+			],
+		});
+		res.send(recipe);
 	} catch (err) {
 		res.send({ msg: `Eror al actualizar intenta mas tarde ${err.message}` });
 	}
