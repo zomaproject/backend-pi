@@ -1,6 +1,5 @@
 import express from "express";
 
-import cloudinary from "cloudinary";
 import multer from "multer";
 import {
 	createRecipe,
@@ -18,6 +17,6 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 router.route("/").get(getRecipes).post(upload.single('image'),createRecipe);
 
-router.route("/:id").get(getRecipeById).delete(deleRecipe).put(editRecipe);
+router.route("/:id").get(getRecipeById).delete(deleRecipe).put(upload.single('image'),editRecipe);
 
 export default router;

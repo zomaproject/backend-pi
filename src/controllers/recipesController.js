@@ -54,36 +54,42 @@ export const getRecipes = async (req, res) => {
 
 // create recipe
 export const createRecipe = async (req, res) => {
+	const { instructions, summary, healthScore, title } = req.body;
+
+	const dataRecipe = {
+		title,
+		instructions,
+		summary,
+		healthScore,
+	};
+	const titleBody = title.toLowerCase().trim().replace(/\s+/g, " ");
+	dataRecipe.title = titleBody;
+	const recipeInDB = await Recipes.findOne({
+		where: {
+			title: titleBody,
+		},
+	});
+
+	if (recipeInDB?.toJSON().id) {
+		const error = new Error("Recipe already exists");
+		return res.status(403).send({ msg: error.message });
+	}
+
 	try {
-
-		const buffer = req.file.buffer;
-		const tempFilePath = `${os.tmpdir()}/${req.file.originalname}`;
-		fs.writeFileSync(tempFilePath, buffer);
-		const result = await cloudinary.v2.uploader.upload(tempFilePath);
-		fs.unlinkSync(tempFilePath);
-
-		const { title } = req.body;
-
-		const recipeInDB = await Recipes.findOne({
-			where: {
-				title: title,
-			},
-		});
-
-		if (recipeInDB?.toJSON().id) {
-			const error = new Error("Recipe already exists");
-			return res.status(403).send({ msg: error.message });
+		const buffer = req.file?.buffer;
+		let image;
+		if (buffer) {
+			const tempFilePath = `${os.tmpdir()}/${req.file.originalname}`;
+			fs.writeFileSync(tempFilePath, buffer);
+			const result = await cloudinary.v2.uploader.upload(tempFilePath);
+			fs.unlinkSync(tempFilePath);
+			image = result.secure_url;
+			dataRecipe.image = image;
+		} else {
+			image = req.body.image;
+			dataRecipe.image = image;
 		}
-		const {  instructions, summary, healthScore } = req.body;
-		const image = result.secure_url;
-		const dataRecipe = {
-			image,
-			title,
-			instructions,
-			summary,
-			image,
-			healthScore,
-		};
+
 		const recipe = await Recipes.create(dataRecipe);
 		const dietsData = await Diets.findAll({
 			where: {
@@ -163,15 +169,49 @@ export const deleRecipe = async (req, res) => {
 };
 
 export const editRecipe = async (req, res) => {
-	const id = req.params.id;
-	const { title, summary, instructions, image, healthScore } = req.body;
-	const data = { title, summary, instructions, image, healthScore };
+	const { id } = req.params;
+
+	const {  instructions, summary, healthScore, title } = req.body;
+	const dataRecipe = {
+		instructions,
+		summary,
+		healthScore,
+	};
+
+	const titleBody = title?.toLowerCase().trim().replace(/\s+/g, " ");
+	dataRecipe.title = titleBody;
+
+	const   recipeInDB =  await Recipes.findOne({
+		where: {
+			title: titleBody,
+		},
+	}) 
+	console.log(recipeInDB)
+	if (recipeInDB?.toJSON().id !== id) {
+		const error = new Error("Recipe already exists");
+		return res.status(403).send({ msg: error.message });
+	}
+
 	try {
-		const recipeInDB = await Model.findByPk(id);
+		const buffer = req.file?.buffer;
+		let image;
+		if (buffer) {
+			const tempFilePath = `${os.tmpdir()}/${req.file.originalname}`;
+			fs.writeFileSync(tempFilePath, buffer);
+			const result = await cloudinary.v2.uploader.upload(tempFilePath);
+			fs.unlinkSync(tempFilePath);
+			image = result.secure_url;
+			dataRecipe.image = image;
+		} else {
+			image = req.body.image;
+			dataRecipe.image = image;
+		}
+
+		const recipeInDB = await Recipes.findByPk(id);
 		if (!recipeInDB) {
 			return res.status(404).send("Receta no encontrada");
 		}
-		await recipeInDB.update(data);
+		await recipeInDB.update(dataRecipe);
 		res.send("Registro actualizado con éxito");
 	} catch (err) {
 		res.send({ msg: `Eror al actualizar intenta mas tarde ${err.message}` });
