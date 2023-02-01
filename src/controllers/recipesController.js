@@ -88,7 +88,6 @@ export const createRecipe = async (req, res) => {
 			image = req.body.image;
 			dataRecipe.image = image;
 		}
-		console.log(dataRecipe)
 		const recipe = await Recipes.create(dataRecipe);
 		const dietsData = await Diets.findAll({
 			where: {
@@ -103,7 +102,7 @@ export const createRecipe = async (req, res) => {
 				},
 			],
 		});
-		res.send('hola');
+		res.send(updateRecipe);
 	} catch (error) {
 		res.status(500).send({ msg: error.message });
 	}
@@ -163,7 +162,7 @@ export const deleRecipe = async (req, res) => {
 		await Recipes.destroy({ where: { id } });
 		res.send({ msg: "Receta eliminada correctamente" });
 	} catch (e) {
-		res.send({ msg: "Ha ocurrido un error , intente mas tarde" });
+		res.status(403).send({ msg: "Ha ocurrido un error , intente mas tarde" });
 	}
 };
 
@@ -187,7 +186,7 @@ export const editRecipe = async (req, res) => {
 	}) 
 	// console.log(recipeInDB.toJSON())
 	if (recipeInDB?.toJSON().id && id !== recipeInDB.toJSON().id ) {
-		const error = new Error("Recipe already exists intenta con otro titulo");
+		const error = new Error("Recipe already exists try another title");
 		return res.status(403).send({ msg: error.message });
 	}
 
@@ -210,7 +209,13 @@ export const editRecipe = async (req, res) => {
 		if (!recipeInDB) {
 			return res.status(404).send("Receta no encontrada");
 		}
-		console.log(dataRecipe)
+
+	const dietsData = await Diets.findAll({
+		where: {
+			name: req.body.Diets,
+		},
+	});
+		await recipeInDB.addDiets(dietsData);	
 		await recipeInDB.update(dataRecipe);
 		const recipe = await Recipes.findByPk(id, {
 			include: [
