@@ -215,7 +215,7 @@ export const editRecipe = async (req, res) => {
 			name: req.body.Diets,
 		},
 	});
-		await recipeInDB.addDiets(dietsData);	
+		await recipeInDB.setDiets(dietsData);	
 		await recipeInDB.update(dataRecipe);
 		const recipe = await Recipes.findByPk(id, {
 			include: [
